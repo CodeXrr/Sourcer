@@ -2,32 +2,54 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include "bits/comment_struct.h"
 //------------------------------------------------------*
-int check_comment(char byte, int fd, int *line_count) {
+
+void comment_dump(struct comment_s *thiscom) {
+	printf("\n**************************\n"); 
+	printf("Comment Struct Dump------*\n"); 
+	printf("-------------------------*\n"); 
+	printf("comment_s (%p)\n", thiscom); 
+	printf("type      (%p): %d\n", &thiscom->type, thiscom->type); 
+	printf("offset    (%p): %ld\n", &thiscom->offset, thiscom->offset); 
+	printf("line      (%p): %ld\n", &thiscom->line, thiscom->line); 
+	printf("size      (%p): %ld\n", &thiscom->size, thiscom->size); 
+	printf("==============================\n\n"); 
+}
+int check_comment(char byte, int fd, long *line_count) {
+	struct comment_s comment;
 	off_t enter_offset = lseek(fd, 0, SEEK_CUR);
-	int comment_count = 0; 
+	long comment_size = 0; 
 
 	if(byte == '/') { 
 		printf(" -- hit comment char activation\n");
 		read(fd, &byte, 1);
 		printf("offset: %ld | %c ", lseek(fd, 0, SEEK_CUR), byte); 
 		if (byte == '/') {
-			printf(" [FOUND]--comment: '//' | line: %d\n", *line_count); 
+			printf(" [FOUND]--comment: '//' | line: %ld\n", *line_count); 
+			comment.type = 1;
+			comment.line = *line_count; 
+			comment.offset = lseek(fd, 0, SEEK_CUR); 
+
 			while(byte != '\n') {
 				read(fd, &byte, 1);
-				comment_count++; 
+				comment_size++; 
 				printf("offset: %ld -READING COOMMENT: %c\n", lseek(fd, 0, SEEK_CUR), byte);  
 
 			}
-			printf("DONE READING COMMENT: line_count before-- %d\n", *line_count); 
-			printf("CommentSize: %d\n", comment_count); 
+			printf("DONE READING COMMENT: line_count before-- %ld\n", *line_count); 
+			printf("CommentSize: %ld\n", comment_size); 
+			comment.size = comment_size;
+
 			(*line_count) += 1;
-			printf("line_count after update-- %d\n", *line_count); 
+			printf("line_count after update-- %ld\n", *line_count); 
+			
+			comment_dump(&comment); 
 			return 1;
 		}
 		if (byte == '*') {
-			comment_count += 1; 			
-			printf("[FOUND]--comment: '/*' | line: %d\n", *line_count); 
+			comment_size++; 			
+			printf("[FOUND]--comment: '/*' | line: %ld\n", *line_count); 
 			return 1;
 		}
 		else { 

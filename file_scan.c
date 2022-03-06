@@ -22,8 +22,8 @@ int is_newline(char byte) {
 		return 0; 
 }
 int scanfile(char *filename) {
-	int fd, line_count=1;
-	long file_size;
+	int fd; 
+	long file_size, line_count=1;
 	unsigned char byte = '\x41';
 
 	file_size = srcfile_size(filename); 
@@ -62,9 +62,14 @@ int scanfile(char *filename) {
 	printf("=======================================\n");
 	printf("DONE SCANNING | (MAIN ENGINE)"); 
 	printf("----------------------------------------\n"); 
-	printf("|summary|\nlineCOUNT: %d\n", line_count); 
+	printf("File Name: \'%s\'\n", filename); 
+	printf("File Size: %ld\n", file_size); 
+	printf("Lines    : %ld\n", line_count); 
+
 	printf("lseek(SEEK_CUR) ended on: %ld\n", lseek(fd, 0, SEEK_CUR)); 
+	printf("===========================================\n"); 
 		
+	printf("closing file...\n"); 
 	close(fd); 
 
 	
