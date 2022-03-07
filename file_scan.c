@@ -22,7 +22,7 @@ int is_newline(char byte) {
 		return 0; 
 }
 int scanfile(char *filename) {
-	int fd; 
+	int fd, comment_count=0; 
 	long file_size, line_count=1;
 	unsigned char byte = '\x41';
 
@@ -53,6 +53,14 @@ int scanfile(char *filename) {
 		{
 			// UPDATE : file_offset
 			file_offset = lseek(fd, 0, SEEK_CUR); 
+			// Keep a tally...
+			// --- This keeps track of both /* and // comments
+			// In order to track seperatly the functions need
+			// to be split into two diffrent ones, namley 
+			// check_comment_star & check_comment_slash.
+			comment_count++; 
+			printf("COUNTED COMMENT: %d\n", comment_count); 
+
 			continue;
 		}
 		
@@ -65,6 +73,7 @@ int scanfile(char *filename) {
 	printf("File Name: \'%s\'\n", filename); 
 	printf("File Size: %ld\n", file_size); 
 	printf("Lines    : %ld\n", line_count); 
+	printf("COM_COUNT: %d\n", comment_count); 
 
 	printf("lseek(SEEK_CUR) ended on: %ld\n", lseek(fd, 0, SEEK_CUR)); 
 	printf("===========================================\n"); 
@@ -75,7 +84,7 @@ int scanfile(char *filename) {
 	
 }
 
-// TEST sITE
+// TEST SITE
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
 		printf("Usage: %s <srcfile.[ch]>\n", argv[0]);

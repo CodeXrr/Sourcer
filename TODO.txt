@@ -1,0 +1,7 @@
+[TODO List for project]
+
+[] /Clarity/ break check_comment into two seperate functions, check_comment_slash and check_comment_star. This would help improve readability and will allow me to deal with seperate comments in the outer parent function (file_scan.c)
+
+[] /Implementation/ Add the comment_indexing functionallity, function for writing comments to a file
+
+

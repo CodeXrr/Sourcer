@@ -47,10 +47,39 @@ int check_comment(char byte, int fd, long *line_count) {
 			comment_dump(&comment); 
 			return 1;
 		}
+
+		// STAR COMMENT CHECK
 		if (byte == '*') {
+			off_t before_read_off; 
 			comment_size++; 			
 			printf("[FOUND]--comment: '/*' | line: %ld\n", *line_count); 
-			return 1;
+			while(1) {
+				read(fd, &byte, 1);
+				printf("offset: %ld -READING COMMENT '/*': %c\n", lseek(fd, 0, SEEK_CUR), byte); 
+				if(byte == '\n') {
+					(*line_count) += 1; 
+				}
+
+				if(byte == '*') {
+					printf("offset: %ld - FOUND TERMINATING STAR: %c\n", lseek(fd, 0, SEEK_CUR), byte); 
+					before_read_off = lseek(fd, 0, SEEK_CUR); 
+					read(fd, &byte, 1);
+					if(byte == '/') { /* then comment ends. */
+						printf("offset: %ld - END OF COMMENT\n", lseek(fd, 0, SEEK_CUR)); 
+						printf("Comment Ends on line: %ld\n", *line_count); 
+						return 1; 
+					} else {
+						// Keep looping, set back the seek cursor so it can through the first test.
+						printf("offset: %ld - SECOND TEST FAIL: %c\n", lseek(fd, 0, SEEK_CUR), byte); 
+						lseek(fd, before_read_off, SEEK_SET); 
+						printf("\n");
+						continue; 
+					}
+				}	
+			}
+
+			printf("[ERROR] NEVER FOUND THE END OF THE COMMENT!\n");
+			return 0; 
 		}
 		else { 
 			lseek(fd, enter_offset, SEEK_SET);
@@ -60,5 +89,6 @@ int check_comment(char byte, int fd, long *line_count) {
 	}
 	else {
 		printf("\n"); 
+		return 0; 
 	}
 }
