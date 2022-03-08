@@ -2,7 +2,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include "bits/comment_struct.h"
+#include "bits/entity_structs.h"
+#include "save_entity.h"
 //------------------------------------------------------*
 
 void comment_dump(struct comment_s *thiscom) {
@@ -21,17 +22,18 @@ int check_comment(char byte, int fd, long *line_count) {
 	off_t enter_offset = lseek(fd, 0, SEEK_CUR);
 	long comment_size = 0; 
 
+	// Activate Comment Analysis
 	if(byte == '/') { 
 		printf(" -- hit comment char activation\n");
 		read(fd, &byte, 1);
 		printf("offset: %ld | %c ", lseek(fd, 0, SEEK_CUR), byte); 
-		if (byte == '/') {
+		if (byte == '/') { // is a slash comment?
 			printf(" [FOUND]--comment: '//' | line: %ld\n", *line_count); 
 			comment.type = 1;
 			comment.line = *line_count; 
 			comment.offset = lseek(fd, 0, SEEK_CUR); 
 
-			while(byte != '\n') {
+			while(byte != '\n') { // read the comment through
 				read(fd, &byte, 1);
 				comment_size++; 
 				printf("offset: %ld -READING COOMMENT: %c\n", lseek(fd, 0, SEEK_CUR), byte);  
@@ -45,17 +47,28 @@ int check_comment(char byte, int fd, long *line_count) {
 			printf("line_count after update-- %ld\n", *line_count); 
 			
 			comment_dump(&comment); 
+			append_comment(COMMENT_OF, &comment); // Function of save_entity.h
 			return 1;
 		}
 
 		// STAR COMMENT CHECK
-		if (byte == '*') {
+		if (byte == '*') { // is a star comment?
 			off_t before_read_off; 
-			comment_size++; 			
 			printf("[FOUND]--comment: '/*' | line: %ld\n", *line_count); 
-			while(1) {
-				read(fd, &byte, 1);
+
+			comment.type = 2; // Star Code
+			comment.line = *line_count; 
+			comment.offset = lseek(fd, 0, SEEK_CUR); 
+
+			while(1) { // read comment through 
+				if(read(fd, &byte, 1) == 0){
+					printf("NOTHING ELSE TO READ FROM FILE...\n"); 
+					return 0;
+				}
 				printf("offset: %ld -READING COMMENT '/*': %c\n", lseek(fd, 0, SEEK_CUR), byte); 
+
+				comment_size++; 
+
 				if(byte == '\n') {
 					(*line_count) += 1; 
 				}
@@ -65,8 +78,13 @@ int check_comment(char byte, int fd, long *line_count) {
 					before_read_off = lseek(fd, 0, SEEK_CUR); 
 					read(fd, &byte, 1);
 					if(byte == '/') { /* then comment ends. */
+						comment.size = comment_size; 
+
 						printf("offset: %ld - END OF COMMENT\n", lseek(fd, 0, SEEK_CUR)); 
 						printf("Comment Ends on line: %ld\n", *line_count); 
+
+						comment_dump(&comment); 
+
 						return 1; 
 					} else {
 						// Keep looping, set back the seek cursor so it can through the first test.
@@ -92,3 +110,5 @@ int check_comment(char byte, int fd, long *line_count) {
 		return 0; 
 	}
 }
+
+ 
