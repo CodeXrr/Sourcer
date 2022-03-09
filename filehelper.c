@@ -5,7 +5,7 @@
 #include <fcntl.h> 
 #include <sys/stat.h>
 
-#define TESTFILE "/home/Projects/filescan/testsrc.c"
+#define COMMENT_OF "/home/Projects/sourcer/index/comments.out"
 #define PERIOD '.'
 #define CEXT 'c'
 #define HEXT 'h'
@@ -14,6 +14,20 @@
 #define CMT_START '/'
 #define CMT_STAR '*'
 #define END_STATMENT_CHAR ';'
+
+int trunc_file(char *filename) {
+        int fd;
+        fd = open(filename, O_TRUNC, S_IRUSR|S_IWUSR);
+        if(fd == -1) {
+                printf("[!!] ERROR in trunc_file() | truncating file \'%s\'\n", filename);
+                exit(-1);
+        }
+        if(close(fd) == -1) {
+		printf("[!!] ERROR in trunc_file() } closing file \'%s\'\n", filename); 
+	}
+
+}
+
 
 int id_file_type(char *filename) { 
 	int fnamelen = strlen(filename); 

@@ -8,7 +8,7 @@
 
 #define OUTFILE "/home/spody/Projects/sourcer/index/comments.out"
 
-int append_comment(struct comment_s *comment) { 
+int append_comment(char *filename, struct comment_s *comment) { 
 	int fd; 
 	
 	fd = open(OUTFILE, O_WRONLY|O_CREAT|O_APPEND, S_IRUSR|S_IWUSR); 

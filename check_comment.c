@@ -1,11 +1,14 @@
 // check_comment.c | checks byte in stream for a comment.
-
-#include <stdio.h>
-#include <unistd.h>
-#include "bits/entity_structs.h"
-#include "save_entity.h"
 //------------------------------------------------------*
 
+#include <stdio.h>      	// printf, lseek
+#include <unistd.h>
+
+// Local Dependencies
+#include "bits/entity_structs.h"// comment_s structure 
+#include "save_entity.h"	// comment saving functions
+
+// Non-External Function for debuggin.
 void comment_dump(struct comment_s *thiscom) {
 	printf("\n**************************\n"); 
 	printf("Comment Struct Dump------*\n"); 
@@ -17,6 +20,13 @@ void comment_dump(struct comment_s *thiscom) {
 	printf("size      (%p): %ld\n", &thiscom->size, thiscom->size); 
 	printf("==============================\n\n"); 
 }
+
+// External Function (main use filescan)
+// -- Takes a byte and checks if it is the start of comment-char 
+// if the byte is the start of a comment, it then checks the next byte
+// and decides if it a qualified comment. It then continues to read 
+// through the entire comment and uses other external functions to save
+// to ./index/comments.out
 int check_comment(char byte, int fd, long *line_count) {
 	struct comment_s comment;
 	off_t enter_offset = lseek(fd, 0, SEEK_CUR);

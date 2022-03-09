@@ -6,9 +6,11 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#include "check_comment.h"
-#include "filehelper.h"
+// Local Dependencies
+#include "check_comment.h"  // check_comment function needed
+#include "filehelper.h"     // srcfile_size, open_read_src | can be put in main.c
 
+// Private functions
 int is_whitespace(char byte) {
 	if(byte == ' ')
 		return 1;
@@ -21,6 +23,9 @@ int is_newline(char byte) {
 	else 
 		return 0; 
 }
+//-----------------------------------
+
+// Public functions
 int scanfile(char *filename) {
 	int fd, comment_count=0; 
 	long file_size, line_count=1;
@@ -83,14 +88,3 @@ int scanfile(char *filename) {
 
 	
 }
-
-// TEST SITE
-int main(int argc, char *argv[]) {
-	if(argc < 2) {
-		printf("Usage: %s <srcfile.[ch]>\n", argv[0]);
-		exit(0);
-	}
-
-	scanfile(argv[1]);
-
-};
