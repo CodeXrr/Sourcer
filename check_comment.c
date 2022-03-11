@@ -116,7 +116,6 @@ int check_comment(char byte, int fd, long *line_count) {
 		}
 	}
 	else {
-		printf("\n"); 
 		return 0; 
 	}
 }

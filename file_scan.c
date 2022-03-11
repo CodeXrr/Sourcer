@@ -9,6 +9,7 @@
 // Local Dependencies
 #include "check_comment.h"  // check_comment function needed
 #include "filehelper.h"     // srcfile_size, open_read_src | can be put in main.c
+#include "check_keyword.h"
 
 // Private functions
 int is_whitespace(char byte) {
@@ -46,7 +47,7 @@ int scanfile(char *filename) {
 			printf("offset: %ld | [ERROR] did not read byte.\n", file_offset);
 			return -1; 
 		}
-		printf("offset: %ld | %c", file_offset, byte);
+		printf("offset: %ld | %c ", file_offset, byte);
 		//printf("\nlseek (sync): %ld\n------s--y--n--c\n", lseek(fd, 0, SEEK_CUR)); 
 
 		if(is_newline(byte)) {
@@ -69,7 +70,10 @@ int scanfile(char *filename) {
 			continue;
 		}
 		
+		if(check_keyword(fd, byte))
+				file_offset = lseek(fd, 0, SEEK_CUR); 
 
+		printf("\n"); 
 	}
 	// THIS MESSEAGE CAN BE ABSTRACTED! CLEANCODE
 	printf("=======================================\n");
