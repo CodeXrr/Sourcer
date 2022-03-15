@@ -7,4 +7,9 @@ struct comment_s {
 	long size; 
 };
 
+struct string_s {
+	long offset; 
+	long line;
+	long size;
+};
 #endif

@@ -10,6 +10,7 @@
 #include "check_comment.h"  // check_comment function needed
 #include "filehelper.h"     // srcfile_size, open_read_src | can be put in main.c
 #include "check_keyword.h"
+#include "check_string.h"
 
 // Private functions
 int is_whitespace(char byte) {
@@ -55,6 +56,10 @@ int scanfile(char *filename) {
 			continue;
 		}
 		
+		// [BUG] There is a logic mishap | when a comment char activation
+		// 	 is hit inside a string, the programs thinks its a comment
+		// 	 but never gets terminated. The check string function should 
+		// 	 fix this problem.
 		if(check_comment(byte, fd, &line_count))
 		{
 			// UPDATE : file_offset
@@ -70,8 +75,11 @@ int scanfile(char *filename) {
 			continue;
 		}
 		
-		if(check_keyword(fd, byte))
-				file_offset = lseek(fd, 0, SEEK_CUR); 
+		if(check_string(fd, byte, &line_count))
+			file_offset = lseek(fd, 0, SEEK_CUR); 
+
+		if(check_keyword(fd, byte, &line_count))
+			file_offset = lseek(fd, 0, SEEK_CUR); 
 
 		printf("\n"); 
 	}
